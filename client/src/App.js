@@ -4,13 +4,18 @@ import {
   Container,
   TextField,
   Button,
-  Box,
   Paper,
   Card,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import React, { useState } from "react";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
+socket.on("connect", (socket) => {
+  console.log("socket connected");
+});
 
 function sendMessage(message) {
   const card = document.getElementById("card");
