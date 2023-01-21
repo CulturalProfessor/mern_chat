@@ -4,6 +4,6 @@ import {getPosts,updatePost} from '../controllers/post.js'
 const router=express.Router();
 
 router.get("/",getPosts);
-router.post("/:id",updatePost);
+router.post("/post",updatePost);
 
 export default router;

@@ -12,6 +12,7 @@ export const getPosts=async(req,res)=>{
 }
 
 export const updatePost=async(req,res)=>{
+    console.log(res);
     const {id:_id}=req.params;
     if(!mongoose.Types.ObjectId.isValid()){
         return res.status(404).send('No post with that id');
