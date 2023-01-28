@@ -1,0 +1,15 @@
+{"_id":{"$oid":"63d4ca240671a549ee94b345"},
+    "room": "room1",
+    "users": [
+      "user1", "user2"
+    ],
+    "messages": [{
+      "user": "user1",
+      "text": "hey",
+      "time": "11:53 AM"
+    },
+    { "user": "user2",
+      "text": "holla",
+      "time": "11:56 AM"
+     }]
+}

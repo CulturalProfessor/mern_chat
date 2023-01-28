@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
 
 const messageSchema = mongoose.Schema({
-  user: { type: String, required: true },
-  room: { type: String, required: true },
-  text: { type: String, required: true },
-  time: { type: String, required: true },
+    room: { type: String, required: true },
+    users: [
+      {type : String, required : true}
+    ],
+    messages: [{
+      user: { type: String },
+      text: { type: String },
+      time: { type: String },
+    }],
 });
 
-const PostMessage=mongoose.model('PostMessage',messageSchema);
-export default PostMessage;
+const Message = mongoose.model("Message", messageSchema);
+export default Message;

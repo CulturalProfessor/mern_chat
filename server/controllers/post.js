@@ -1,22 +1,38 @@
-import mongoose from "mongoose";
-import PostMessage from '../models/message.js';
+import Message from "../models/message.js";
 
-export const getPosts=async(req,res)=>{
-    try{
-        const postMessages=await PostMessage.find();
-        res.status(200).json(postMessages);
-    }catch(err){
-        console.log(err);
-        res.status(404).json({message:err})
-    }
-}
+export const getMessages = async (req, res) => {};
 
-export const updatePost=async(req,res)=>{
-    console.log(res);
-    const {id:_id}=req.params;
-    if(!mongoose.Types.ObjectId.isValid()){
-        return res.status(404).send('No post with that id');
+export const login = async (req, res) => {
+  const { name, room } = req.body;
+  // console.log(name,room);
+  const isRoom = await Message.findOne({ room: room });
+  const isUser = await Message.find({ room: room }).find({ users: name });
+
+  if (isRoom) {
+    console.log(isUser);
+    if (isUser.length != 0) {
+      res.status(409).json({
+        message: "Username already taken",
+      });
+    } else {
+      await Message.find({ room: room }).updateOne({
+        $push: { users: name },
+      });
+    //   console.log(newUserInserted);
+      res.status(200).json({
+        message: "account created",
+      });
     }
-    const updatedPost=await PostMessage.findByIdAndUpdate(_id,{new:true});
-    res.json(updatedPost);
-}
+  } else {
+    const newRoom = await Message.insertMany({
+      room: room,
+      users: [name],
+      messages: [{}],
+    });
+    console.log(newRoom);
+    res.status(200).json({
+      message: "New room created",
+    });
+  }
+  // console.log(isRoom);
+};

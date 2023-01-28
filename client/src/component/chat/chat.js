@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { useState, useEffect } from "react";
 import queryString from "query-string";
 import {
@@ -13,26 +13,9 @@ import SendIcon from "@mui/icons-material/Send";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import io from "socket.io-client";
 import moment from "moment";
-import './chat.css'
-
-// const socket = io("http://localhost:5000");
-// socket.on("connect", (socket) => {
-//   // console.log("socket connected");
-
-// });
-// socket.on("getMessage",()=>{
-  
-// })
+import "./chat.css";
 
 const ENDPOINT = "localhost:5000";
-
-//   function getURL(){
-//   const queryString = window.location.search;
-//   const urlParams = new URLSearchParams(queryString);
-//   const user = urlParams.get("name");
-//   const room = urlParams.get("room");
-//     return ({user,room});
-// }
 
 var connectionOptions = {
   "force new connection": true,
@@ -46,25 +29,43 @@ socket.on("connect", (socket) => {
   console.log("socket connected");
 });
 
-function Chat() {
+function getUser() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const name = urlParams.get("name");
+  const room = urlParams.get("room");
+  socket.emit("join", { name, room }, (error) => {
+    if (error) {
+      alert(error);
+    }
+  });
+}
 
+async function userJoined() {
+  let welcomeText;
+  getUser();
+  socket.on("message", (user, text) => {
+    // console.log(user.user);
+    // console.log(user.text);
+    welcomeText = user.text;
+    return welcomeText;
+  });
+}
+
+function Chat() {
   const [message, setMessage] = useState("");
-      const [name, setName] = useState("");
-      const [room, setRoom] = useState("");
+  const [name, setName] = useState("");
+  const [room, setRoom] = useState("");
+  const [welcomeText, setWelcomeText] = useState("");
+
 
   useEffect(() => {
-
-    const queryString=window.location.search;
+    const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    
-    setName(urlParams.get('name'));
-    setRoom(urlParams.get('room'));
 
-    socket.emit("join", { name, room }, (error) => {
-      if (error) {
-        alert(error);
-      }
-    });
+    setName(urlParams.get("name"));
+    setRoom(urlParams.get("room"));
+
     return () => {
       socket.emit("disconnection");
       socket.off();
@@ -81,48 +82,48 @@ function Chat() {
       user: name,
       room: room,
       text: message,
-      time: moment().format("LT"),
+      time: moment().format('MMMM Do YYYY, h:mm:ss a')
     });
   }
 
   return (
     <Paper variant="outlined" align="center" className="paper">
-        <Container className="header">
-          <RocketLaunchOutlinedIcon variant="" fontSize="large" />
-          <Typography variant="h4">CHAT APP</Typography>
-          <Typography variant='h5'>{room}</Typography>
-        </Container>
-        <Container fixed maxWidth="sm">
-          <Card variant="outlined" id="card">
-            <p className="message"> {name},your chat begins here</p>
-          </Card>
-        </Container>
-        <Container className="sendMessage">
-          <TextField
-            className="inputText"
-            id="outlined-basic"
-            label="Message"
-            variant="outlined"
-            value={message}
-            onChange={(e) => {
-              setMessage(e.target.value);
-            }}
-          />
-          <Button
-            className="send"
-            variant="contained"
-            endIcon={<SendIcon />}
-            type="submit"
-            onClick={() => {
-              sendMessage(message);
-              setMessage("");
-            }}
-          >
-            Send
-          </Button>
-        </Container>
-      </Paper>
-  )
+      <Container className="header">
+        <RocketLaunchOutlinedIcon variant="" fontSize="large" />
+        <Typography variant="h4">CHAT APP</Typography>
+        <Typography variant="h5">ROOM:{room}</Typography>
+      </Container>
+      <Container fixed maxWidth="sm">
+        <Card variant="outlined" id="card">
+          <p className="message"><b>{name}</b>,welcome to room {room}</p>
+        </Card>
+      </Container>
+      <Container className="sendMessage">
+        <TextField
+          className="inputText"
+          id="outlined-basic"
+          label="Message"
+          variant="outlined"
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+          }}
+        />
+        <Button
+          className="send"
+          variant="contained"
+          endIcon={<SendIcon />}
+          type="submit"
+          onClick={() => {
+            sendMessage(message);
+            setMessage("");
+          }}
+        >
+          Send
+        </Button>
+      </Container>
+    </Paper>
+  );
 }
 
-export default Chat
+export default Chat;
