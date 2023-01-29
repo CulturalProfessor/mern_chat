@@ -1,6 +1,9 @@
 import Message from "../models/message.js";
 
-export const getMessages = async (req, res) => {};
+export const getMessages = async (req, res) => {
+
+};
+
 
 export const login = async (req, res) => {
   const { name, room } = req.body;
@@ -8,7 +11,12 @@ export const login = async (req, res) => {
   const isRoom = await Message.findOne({ room: room });
   const isUser = await Message.find({ room: room }).find({ users: name });
 
-  if (isRoom) {
+  if(name=="" || room==""){
+    res.status(201).json({
+        message:"Enter name and room to join."
+    })
+  }
+  else if (isRoom) {
     console.log(isUser);
     if (isUser.length != 0) {
       res.status(409).json({
@@ -20,7 +28,7 @@ export const login = async (req, res) => {
       });
     //   console.log(newUserInserted);
       res.status(200).json({
-        message: "account created",
+        message: "account created", 
       });
     }
   } else {

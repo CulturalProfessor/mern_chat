@@ -2,6 +2,9 @@ import React from "react";
 import { useState, useEffect } from "react";
 import queryString from "query-string";
 import {
+  Box,
+  Grid,
+  Item,
   Typography,
   Container,
   TextField,
@@ -10,6 +13,7 @@ import {
   Card,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import InputAdornment from "@mui/material/InputAdornment";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import io from "socket.io-client";
 import moment from "moment";
@@ -58,7 +62,6 @@ function Chat() {
   const [room, setRoom] = useState("");
   const [welcomeText, setWelcomeText] = useState("");
 
-
   useEffect(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -82,47 +85,81 @@ function Chat() {
       user: name,
       room: room,
       text: message,
-      time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      time: moment().format("MMMM Do YYYY, h:mm:ss a"),
     });
   }
 
   return (
-    <Paper variant="outlined" align="center" className="paper">
-      <Container className="header">
-        <RocketLaunchOutlinedIcon variant="" fontSize="large" />
-        <Typography variant="h4">CHAT APP</Typography>
-        <Typography variant="h5">ROOM:{room}</Typography>
-      </Container>
-      <Container fixed maxWidth="sm">
-        <Card variant="outlined" id="card">
-          <p className="message"><b>{name}</b>,welcome to room {room}</p>
-        </Card>
-      </Container>
-      <Container className="sendMessage">
-        <TextField
-          className="inputText"
-          id="outlined-basic"
-          label="Message"
-          variant="outlined"
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-          }}
-        />
-        <Button
-          className="send"
-          variant="contained"
-          endIcon={<SendIcon />}
-          type="submit"
-          onClick={() => {
-            sendMessage(message);
-            setMessage("");
-          }}
-        >
-          Send
-        </Button>
-      </Container>
-    </Paper>
+    <>
+      <Paper className="mainScreen" elevation={1}>
+        <Typography variant="h4" className="title">
+          M.E.R.N. Chat
+        </Typography>
+        <Typography variant="h5" className="title">
+          ROOM
+        </Typography>
+        <Grid container maxWidth="lg" className="chatScreen">
+          <Grid item xs={4}>
+            <Container className="usersScreen">
+              <Paper elevation={4} className="item">
+                <Typography variant="h6" className="title">
+                  Active Users
+                </Typography>
+              </Paper>
+              <Paper elevation={4} className="item">
+                <Typography variant="h6" className="username">
+                  user1
+                </Typography>
+                <Typography variant="h6" className="username">
+                  user2
+                </Typography>
+              </Paper>
+            </Container>
+          </Grid>
+          <Grid item xs={8}>
+            <Container className="textScreen">
+              <Paper elevation={4} className="item">
+                <Typography variant="h6" className="title">
+                  Messages
+                </Typography>
+              </Paper>
+              <Paper elevation={4} className="item">
+                <Typography variant="h6" className="texts">
+                  message
+                </Typography>
+                <Typography variant="h6" className="texts">
+                  message
+                </Typography>
+              </Paper>
+            </Container>
+          </Grid>
+        </Grid>
+        <Grid container maxWidth="sm" className="typeScreen" spacing={1}>
+          <Grid item xs={8}>
+            <TextField
+              id="outlined-search"
+              label="Text Here..."
+              type="search"
+              multiline
+              fullWidth
+              color="success"
+              maxRows={2}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Button
+              className="sendButton"
+              focusRipple
+              color="success"
+              variant="contained"
+              endIcon={<SendIcon />}
+            >
+              send
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    </>
   );
 }
 

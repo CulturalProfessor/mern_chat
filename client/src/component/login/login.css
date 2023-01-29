@@ -32,22 +32,23 @@ html, body {
 }
    
 .heading {
-    color: white;
+    color: #F13223;
     font-size: 2.5em;
     padding-bottom: 10px;
     border-bottom: 2px solid white;
 }
    
 .button {
-    color: #fff !important;
     text-transform: uppercase;
-    text-decoration: none;
-    background: #2979FF;
+    background: #F13223;
     padding: 20px;
     border-radius: 5px;
     display: inline-block;
     border: none;
     width: 100%;
+}
+.link{
+    text-decoration: none;
 }
    
 .mt-20 {
