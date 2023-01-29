@@ -1,7 +1,11 @@
 import Message from "../models/message.js";
 
-export const getMessages = async (req, res) => {
-
+export const getUsers = async (req, res) => {   
+    const {name,room}=req.body;
+    console.log(name);
+    const users=await Message.findOne({room:room}).find({users:{$in:[name]}});
+    console.log(users);
+    res.status(200).json(users[0].users)
 };
 
 

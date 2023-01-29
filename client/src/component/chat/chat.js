@@ -12,6 +12,7 @@ import {
   Paper,
   Card,
 } from "@mui/material";
+import Grow from "@mui/material/Grow";
 import SendIcon from "@mui/icons-material/Send";
 import InputAdornment from "@mui/material/InputAdornment";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
@@ -58,45 +59,32 @@ async function userJoined() {
 
 function Chat() {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [welcomeText, setWelcomeText] = useState("");
-
+  console.log(message);
   useEffect(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
     setName(urlParams.get("name"));
     setRoom(urlParams.get("room"));
-
-    return () => {
-      socket.emit("disconnection");
-      socket.off();
-    };
   }, [ENDPOINT, queryString]);
 
-  function sendMessage(message) {
-    const card = document.getElementById("card");
-    const text = document.createElement("p");
-    text.innerHTML = message;
-    card.appendChild(text);
-    text.className = "message";
-    socket.emit("sendMessage", {
-      user: name,
-      room: room,
-      text: message,
-      time: moment().format("MMMM Do YYYY, h:mm:ss a"),
-    });
+  function sendMessage() {
+    setMessages([...messages,message]);
+    console.log(messages);
   }
 
   return (
     <>
       <Paper className="mainScreen" elevation={1}>
-        <Typography variant="h4" className="title">
+        <Typography variant="h5" className="title">
           M.E.R.N. Chat
         </Typography>
-        <Typography variant="h5" className="title">
-          ROOM
+        <Typography variant="h6" className="title" mt={1}>
+          <b>{room}</b>
         </Typography>
         <Grid container maxWidth="lg" className="chatScreen">
           <Grid item xs={4}>
@@ -108,7 +96,7 @@ function Chat() {
               </Paper>
               <Paper elevation={4} className="item">
                 <Typography variant="h6" className="username">
-                  user1
+                  <b>{name}</b>
                 </Typography>
                 <Typography variant="h6" className="username">
                   user2
@@ -120,16 +108,17 @@ function Chat() {
             <Container className="textScreen">
               <Paper elevation={4} className="item">
                 <Typography variant="h6" className="title">
-                  Messages
+                  Messages:
                 </Typography>
               </Paper>
-              <Paper elevation={4} className="item">
-                <Typography variant="h6" className="texts">
-                  message
-                </Typography>
-                <Typography variant="h6" className="texts">
-                  message
-                </Typography>
+              <Paper elevation={4} className="texts">
+                  {messages.map((message) => {
+                    return (
+                      <Typography variant="h6" m={0.1} className="text">
+                        {message}
+                      </Typography>
+                    );
+                  })}
               </Paper>
             </Container>
           </Grid>
@@ -137,11 +126,14 @@ function Chat() {
         <Grid container maxWidth="sm" className="typeScreen" spacing={1}>
           <Grid item xs={8}>
             <TextField
+              className="textField"
               id="outlined-search"
               label="Text Here..."
               type="search"
               multiline
+              autoComplete="false"
               fullWidth
+              onChange={(e) => setMessage(e.target.value)}
               color="success"
               maxRows={2}
             />
@@ -153,6 +145,9 @@ function Chat() {
               color="success"
               variant="contained"
               endIcon={<SendIcon />}
+              onClick={(e) => {
+                sendMessage();
+              }}
             >
               send
             </Button>
