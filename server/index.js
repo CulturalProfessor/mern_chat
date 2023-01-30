@@ -5,6 +5,7 @@ import cors from "cors";
 import Routes from "./routes/posts.js";
 import { Server } from "socket.io";
 import Message from "./models/message.js";
+import { Socket } from "dgram";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -37,3 +38,11 @@ const io = new Server(server, {
   },
 });
 
+io.on("connection", (socket) => {
+  console.log("Socket connected");
+
+  socket.on("sendMessage", (data) => {
+    console.log(data);
+    socket.broadcast.emit("getMessage", data);
+  });
+});

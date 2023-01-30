@@ -2,20 +2,25 @@ import Message from "../models/message.js";
 
 export const getUsers = async (req, res) => {   
     const {name,room}=req.body;
-    console.log(name);
-    console.log(room);
     const users=await Message.findOne({room:room}).find({users:{$in:[name]}});
-    console.log(users[0].users);
+    // console.log(users[0].users);
     res.status(200).json(users[0].users)
 };
 
 export const getMessages=async (req,res)=>{
     const { name, room } = req.body;
-    console.log(name);
-    console.log(room);
     const users=await Message.findOne({room:room}).find({users:{$in:[name]}});
-    console.log(users[0].messages);
+    // console.log(users[0].messages);
     res.status(200).json(users[0].messages);
+}
+export const updateMessages=async (req,res)=>{
+    const {user,room,text,time}=req.body;
+    const data=req.body;
+    const users = await Message.findOne({ room: room }).find({
+      users: { $in: [user] },
+    }).updateOne({$push:{messages:data}});
+    console.log(users);
+    res.status(200).json(users)
 }
 
 export const login = async (req, res) => {

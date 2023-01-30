@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
 const messageSchema = mongoose.Schema({
-    room: { type: String, required: true },
-    users: [
-      {type : String, required : true}
-    ],
-    messages: [{
+  room: { type: String, required: true },
+  users: [{ type: String, required: true }],
+  messages: [
+    {
       user: { type: String },
+      room: { type: String },
       text: { type: String },
       time: { type: String },
-    }],
+    },
+  ],
 });
 
 const Message = mongoose.model("Message", messageSchema);

@@ -31,6 +31,7 @@ var connectionOptions = {
 };
 
 const socket = io("http://localhost:5000", connectionOptions);
+
 socket.on("connect", (socket) => {
   console.log("socket connected");
 });
@@ -42,57 +43,85 @@ function Chat() {
   const [room, setRoom] = useState("");
   const [welcomeText, setWelcomeText] = useState("");
   const [users, setUsers] = useState([]);
-  console.log(message);
+  // console.log(message);
+
+  const data = {
+    name: name,
+    room: room,
+  };
 
   useEffect(() => {
     const queryString = window.location.search;
-    console.log(queryString);
+    // console.log(queryString);
     const urlParams = new URLSearchParams(queryString);
     setName(urlParams.get("name"));
     setRoom(urlParams.get("room"));
 
+    //don't disturb this sequence of function,it is important
+  }, [ENDPOINT, queryString, messages]);
+
+  useEffect(() => {
+    async function getUsers() {
+      await axios
+        .post("http://localhost:5000/getUsers", data)
+        .then((res) => {
+          setUsers(res.data);
+          // console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    getUsers();
+    socket.emit();
+  }, []);
+
+  useEffect(() => {
+    async function getMessages() {
+      await axios
+        .post("http://localhost:5000/getMessages", data)
+        .then((res) => {
+          let textArray = [];
+          for (let i = 0; i < res.data.length; i++) {
+            textArray.push(res.data[i].text);
+          }
+          // console.log(textArray);
+          messages.push(...textArray);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    getMessages();
+  }, []);
+
+  useEffect(() => {
+    socket.on("getMessage", (data) => {
+      console.log(data.text);
+      setMessages([...messages, data.text]);
+    });
+  });
+
+  async function sendMessage() {
+    setMessages([...messages, message]);
     const data = {
-      name: name,
+      user: name,
       room: room,
+      text: message,
+      time: moment().format("MMMM Do YYYY, h:mm:ss a"),
+      // socket:socket.id,
     };
-    function getUsers(){
-    axios
-      .post("http://localhost:5000/getUsers", data)
+    await axios
+      .post("http://localhost:5000/updateMessages", data)
       .then((res) => {
-        setUsers(res.data);
         console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
-    }
-    function getMessages(){
-    axios
-      .post("http://localhost:5000/getMessages", data)
-      .then((res) => {
 
-        let textArray=[];
-        for(let i=0;i<res.data.length;i++){
-          textArray.push(res.data[i].text);          
-        }
-        console.log(textArray);
-        messages.push(...textArray)
-      })
-      .catch((err) => {  
-        console.log(err);       
-      });
-    } 
-    //don't disturb this sequence of function,it is important
-    getMessages();
-    getUsers(); 
-  }, [ENDPOINT, queryString,messages]);
-      
-  useEffect(()=>{
-    
-  },[])   
-
-  function sendMessage() {
-    setMessages([...messages, message]);
+    socket.emit("sendMessage", data);
+    // console.log(socket.id);
     // console.log(messages);
   }
 
