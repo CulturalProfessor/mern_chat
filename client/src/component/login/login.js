@@ -44,7 +44,7 @@ function Login() {
           <input
             placeholder="Name"
             className="joinInput"
-            autocomplete="off"
+            autoComplete="off"
             type="text"
             onChange={(event) => {
               setName(event.target.value);

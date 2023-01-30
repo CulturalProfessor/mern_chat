@@ -23,6 +23,7 @@ body {
 }
 .item{
   margin: .5em;
+  text-align: center;
 }
 .typeScreen{
   display: flex;
@@ -35,9 +36,9 @@ body {
 }
 .texts{
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction:column;
   align-items:flex-end;
+  justify-content: flex-end;
   height: 28em;
   overflow-y:scroll ;
 }
@@ -51,4 +52,15 @@ body {
   row-gap: .1em;
   transition: width 2s;
   border-radius: .3em;
+}
+.usersList{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items:flex-start;
+  height: 16em;
+  overflow-y:scroll ;
+}
+.activeUsersList{
+  height: 8em;
 }

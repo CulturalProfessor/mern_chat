@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import queryString from "query-string";
+import axios from "axios";
 import {
   Box,
   Grid,
@@ -20,7 +21,7 @@ import io from "socket.io-client";
 import moment from "moment";
 import "./chat.css";
 
-const ENDPOINT = "localhost:5000";
+const ENDPOINT = "localhost:3000";
 
 var connectionOptions = {
   "force new connection": true,
@@ -34,47 +35,65 @@ socket.on("connect", (socket) => {
   console.log("socket connected");
 });
 
-function getUser() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const name = urlParams.get("name");
-  const room = urlParams.get("room");
-  socket.emit("join", { name, room }, (error) => {
-    if (error) {
-      alert(error);
-    }
-  });
-}
-
-async function userJoined() {
-  let welcomeText;
-  getUser();
-  socket.on("message", (user, text) => {
-    // console.log(user.user);
-    // console.log(user.text);
-    welcomeText = user.text;
-    return welcomeText;
-  });
-}
-
 function Chat() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [welcomeText, setWelcomeText] = useState("");
+  const [users, setUsers] = useState([]);
   console.log(message);
+
   useEffect(() => {
     const queryString = window.location.search;
+    console.log(queryString);
     const urlParams = new URLSearchParams(queryString);
-
     setName(urlParams.get("name"));
     setRoom(urlParams.get("room"));
-  }, [ENDPOINT, queryString]);
+
+    const data = {
+      name: name,
+      room: room,
+    };
+    function getUsers(){
+    axios
+      .post("http://localhost:5000/getUsers", data)
+      .then((res) => {
+        setUsers(res.data);
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    }
+    function getMessages(){
+    axios
+      .post("http://localhost:5000/getMessages", data)
+      .then((res) => {
+
+        let textArray=[];
+        for(let i=0;i<res.data.length;i++){
+          textArray.push(res.data[i].text);          
+        }
+        console.log(textArray);
+        messages.push(...textArray)
+      })
+      .catch((err) => {  
+        console.log(err);       
+      });
+    } 
+    //don't disturb this sequence of function,it is important
+    getMessages();
+    getUsers(); 
+  }, [ENDPOINT, queryString,messages]);
+      
+  useEffect(()=>{
+    
+  },[])   
 
   function sendMessage() {
-    setMessages([...messages,message]);
-    console.log(messages);
+    setMessages([...messages, message]);
+    // console.log(messages);
   }
 
   return (
@@ -87,22 +106,43 @@ function Chat() {
           <b>{room}</b>
         </Typography>
         <Grid container maxWidth="lg" className="chatScreen">
-          <Grid item xs={4}>
-            <Container className="usersScreen">
-              <Paper elevation={4} className="item">
-                <Typography variant="h6" className="title">
-                  Active Users
-                </Typography>
-              </Paper>
-              <Paper elevation={4} className="item">
-                <Typography variant="h6" className="username">
-                  <b>{name}</b>
-                </Typography>
-                <Typography variant="h6" className="username">
-                  user2
-                </Typography>
-              </Paper>
-            </Container>
+          <Grid item xs={4} direction="column">
+            <Grid item xs={8}>
+              <Container className="activeUsersScreen">
+                <Paper elevation={4} className="item">
+                  <Typography variant="h6" className="title">
+                    Active Users
+                  </Typography>
+                </Paper>
+                <Paper elevation={4} className="activeUsersList">
+                  <b>
+                    <Typography className="username">users</Typography>
+                  </b>
+                  <Typography variant="h6" className="username"></Typography>
+                </Paper>
+              </Container>
+            </Grid>
+            <Grid item xs={4}>
+              <Container className="usersScreen">
+                <Paper elevation={4} className="item">
+                  <Typography variant="h6" className="title">
+                    Members
+                  </Typography>
+                </Paper>
+                <Paper elevation={4} className="usersList">
+                  <b>
+                    {users.map((user) => {
+                      return (
+                        <Typography variant="h6" m={0.1} className="username">
+                          {user}
+                        </Typography>
+                      );
+                    })}
+                  </b>
+                  <Typography variant="h6" className="username"></Typography>
+                </Paper>
+              </Container>
+            </Grid>
           </Grid>
           <Grid item xs={8}>
             <Container className="textScreen">
@@ -112,13 +152,13 @@ function Chat() {
                 </Typography>
               </Paper>
               <Paper elevation={4} className="texts">
-                  {messages.map((message) => {
-                    return (
-                      <Typography variant="h6" m={0.1} className="text">
-                        {message}
-                      </Typography>
-                    );
-                  })}
+                {messages.map((message) => {
+                  return (
+                    <Typography variant="h6" m={0.1} className="text">
+                      {message}
+                    </Typography>
+                  );
+                })}
               </Paper>
             </Container>
           </Grid>
