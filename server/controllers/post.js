@@ -1,18 +1,29 @@
 import Message from "../models/message.js";
-
-export const getUsers = async (req, res) => {   
-    const {name,room}=req.body;
-    const users=await Message.findOne({room:room}).find({users:{$in:[name]}});
-    // console.log(users[0].users);
-    res.status(200).json(users[0].users)
+export const getUsers = async (req, res) => {
+  const { name, room } = req.body;
+  const users = await Message.findOne({ room: room }, "users");
+  if (users) {
+    res.status(200).json(users.users);
+  } else {
+    res.status(404).json({ message: "No users found" });
+  }
 };
 
-export const getMessages=async (req,res)=>{
-    const { name, room } = req.body;
-    const users=await Message.findOne({room:room}).find({users:{$in:[name]}});
-    // console.log(users[0].messages);
-    res.status(200).json(users[0].messages);
-}
+
+export const getMessages = async (req, res) => {
+  const { name, room } = req.body;
+  const messageRoom = await Message.findOne({ room: room });
+  if (!messageRoom) {
+    return res.status(404).json({ message: "Room not found" });
+  }
+  const user = messageRoom.users.find((u) => u === name);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  const messages = messageRoom.messages.find((m) => m.user === name).messages;
+  res.status(200).json(messages);
+};
+
 export const updateMessages=async (req,res)=>{
     const {user,room,text,time}=req.body;
     const data=req.body;
@@ -20,7 +31,7 @@ export const updateMessages=async (req,res)=>{
       users: { $in: [user] },
     }).updateOne({$push:{messages:data}});
     console.log(users);
-    res.status(200).json(users)
+    res.status(200).json({message:"message stored"});
 }
 
 export const login = async (req, res) => {

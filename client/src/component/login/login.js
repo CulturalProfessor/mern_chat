@@ -3,37 +3,33 @@ import { Link } from "react-router-dom";
 import "./login.css";
 import axios from "axios";
 import { Button } from "@mui/material";
-// import { redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 function Login() {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
-  const [redirect,setRedirect]=useState(200);
-  const data = {
-    name: name,
-    room: room,
-  };
+  const [redirect, setRedirect] = useState(200);
 
-  async function sendNameRoom(e) {
-    await axios
-      .post("http://localhost:5000/login", data)
-      .then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          console.log(redirect);
-          alert(res.data.message);
-           document.location.href = `/chat?name=${name}&room=${room}`;
-        }
-        else if (res.status === 201) {
-          alert(res.data.message);
-          e.preventDefault();
-        }else{
-        e.preventDefault();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  async function sendUsernameRoom(e) {
+    e.preventDefault();
+
+    const data = {
+      username: username,
+      room: room,
+    };
+
+    try {
+      const res = await axios.post("http://localhost:5000/login", data);
+
+      if (res.status === 200) {
+        alert(res.data.message);
+        document.location.href = `/chat?username=${username}&room=${room}`;
+      } else if (res.status === 201) {
+        alert(res.data.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -42,13 +38,12 @@ function Login() {
         <h1 className="heading">Join</h1>
         <div>
           <input
-            placeholder="Name"
+            placeholder="Username"
             className="joinInput"
             autoComplete="off"
             type="text"
             onChange={(event) => {
-              setName(event.target.value);
-              console.log(name);
+              setUsername(event.target.value);
             }}
           />
         </div>
@@ -57,7 +52,7 @@ function Login() {
           <input
             placeholder="Room"
             className="joinInput mt-20"
-            autocomplete="off"
+            autoComplete="off"
             type="text"
             onChange={(event) => setRoom(event.target.value)}
           />
@@ -65,9 +60,7 @@ function Login() {
         <button
           className={"button mt-20"}
           type="submit"
-          onClick={(e) => {
-            sendNameRoom(e);
-          }}
+          onClick={(e) => sendUsernameRoom(e)}
         >
           Sign In
         </button>

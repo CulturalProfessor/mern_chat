@@ -32,8 +32,9 @@ var connectionOptions = {
 
 const socket = io("http://localhost:5000", connectionOptions);
 
-socket.on("connect", (socket) => {
+socket.on("connect", () => {
   console.log("socket connected");
+  console.log();
 });
 
 function Chat() {
@@ -43,12 +44,19 @@ function Chat() {
   const [room, setRoom] = useState("");
   const [welcomeText, setWelcomeText] = useState("");
   const [users, setUsers] = useState([]);
+  const [bool, setBool] = useState(false);
+  const [activeUsers, setActiveUsers] = useState([]);
   // console.log(message);
-
+  console.log("started");
   const data = {
     name: name,
     room: room,
   };
+  useEffect(() => {
+    socket.on("activeUsers", (users) => {
+      setActiveUsers(users);
+    });
+  }, []);
 
   useEffect(() => {
     const queryString = window.location.search;
@@ -60,22 +68,22 @@ function Chat() {
     //don't disturb this sequence of function,it is important
   }, [ENDPOINT, queryString, messages]);
 
+  async function getUsers() {
+    await axios
+      .post("http://localhost:5000/getUsers", data)
+      .then((res) => {
+        setUsers(res.data);
+        console.log(res);
+        // console.log(res.data);
+      })
+      .catch((err) => { 
+        console.log(err);
+      });
+  }
   useEffect(() => {
-    async function getUsers() {
-      await axios
-        .post("http://localhost:5000/getUsers", data)
-        .then((res) => {
-          setUsers(res.data);
-          // console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
     getUsers();
-    socket.emit();
   }, []);
-
+  
   useEffect(() => {
     async function getMessages() {
       await axios
@@ -85,19 +93,21 @@ function Chat() {
           for (let i = 0; i < res.data.length; i++) {
             textArray.push(res.data[i].text);
           }
-          // console.log(textArray);
-          messages.push(...textArray);
+          console.log(res);
+          setMessages((prevMessages) => [...prevMessages, ...textArray]);
         })
         .catch((err) => {
           console.log(err);
         });
     }
+
     getMessages();
   }, []);
 
   useEffect(() => {
     socket.on("getMessage", (data) => {
       console.log(data.text);
+      // let msg = +`<h6 style="color:blue;">${data.text}</h6>`;
       setMessages([...messages, data.text]);
     });
   });
@@ -145,7 +155,16 @@ function Chat() {
                 </Paper>
                 <Paper elevation={4} className="activeUsersList">
                   <b>
-                    <Typography className="username">users</Typography>
+                    {activeUsers.map((user) => (
+                      <Typography
+                        variant="h6"
+                        m={0.1}
+                        className="username"
+                        key={user}
+                      >
+                        {user}
+                      </Typography>
+                    ))}
                   </b>
                   <Typography variant="h6" className="username"></Typography>
                 </Paper>
